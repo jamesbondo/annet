@@ -61,8 +61,7 @@ def placeholder_inputs(batch_size):
   # Note that the shapes of the placeholders match the shapes of the full
   # image and label tensors, except the first dimension is now batch_size
   # rather than the full size of the train or test data sets.
-  images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                         mnist.IMAGE_PIXELS))
+  images_placeholder = tf.placeholder(tf.float32, shape=(batch_size, mnist.IMAGE_PIXELS))
   labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
   return images_placeholder, labels_placeholder
 
@@ -113,6 +112,7 @@ def do_eval(sess,
   # And run one epoch of eval.
   true_count = 0  # Counts the number of correct predictions.
   steps_per_epoch = data_set.num_examples // FLAGS.batch_size
+  # each epoch defines as one iteration
   num_examples = steps_per_epoch * FLAGS.batch_size
   for step in xrange(steps_per_epoch):
     feed_dict = fill_feed_dict(data_set,
@@ -226,4 +226,10 @@ def main(_):
 
 
 if __name__ == '__main__':
+  # def run():
+  # the source code of tf.app.run()
+  # f = flags.FLAGS
+  # f._parse_flags()
+  # main = sys.modules['__main__'].main
+  # sys.exit(main(sys.argv))
   tf.app.run()
