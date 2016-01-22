@@ -1,19 +1,19 @@
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
-import scipy.stats as stats
 from matplotlib import mlab
 
 
-# reference
-# https://github.com/jamt9000/prml/blob/master/3.3.1-parameter-distribution.ipynb
+# reference  https://github.com/jamt9000/prml/blob/master/3.3.1-parameter-distribution.ipynb
 
 def gen_data():
-    x = np.random.uniform(-1, 1, 20)
+    x1 = np.random.uniform(-1, 1, 20)
+    x0 = np.ones((20, 1))
     a, b = -0.3, 0.5
-    y = a + b*x
+    y = a + b*x1
     y = y + np.random.normal(0, 0.04, 20)
-    return x, y
+    x1 = x1[:, np.newaxis]
+    _x = np.hstack([x0, x1])
+    return x1, y, _x
 
 
 def gaussian(x, u, sigma):
@@ -50,44 +50,15 @@ def caculate_posterior(x, y, a, b):
     _a = a*np.eye(2, 2)
     s_n = _a + b*ff
     _s_n = np.linalg.inv(s_n)
-    u = b*np.dot(_s_n, f.T)*y
+    u = b*np.dot(_s_n, f.T*y)
     return u, _s_n
 
 
-def caculate_posterior_dim(x, y, sigma, b):
-    f = np.array([1, x])
-    f = f[np.newaxis, :]
-    ff = np.dot(f.T, f)
-    s_n = sigma + b*ff
-    _s_n = np.linalg.inv(s_n)
-    # u = b*np.dot(_s_n, f.T)*y
-    u = b*np.dot(_s_n, np.dot(f.T, y))
-    return u, _s_n
-
-
-def caculate_posterior_dim2(x, y, a, b):
-    ff = np.dot(x.T, x)
-    s_n = a*np.eye(2) + b*ff
+def caculate_posterior_dim(x, y, a, b):
+    s_n = a*np.eye(2) + b*np.dot(x.T, x)
     _s_n = np.linalg.inv(s_n)
     u = b*np.dot(_s_n, np.dot(x.T, y))
-    # s_n = a*np.eye(2) + b*np.dot(x.T, x)
-    # _s_n = np.linalg.inv(s_n)
-    # u = b*np.dot(_s_n, np.dot(x.T, y))
     return u, _s_n
-
-
-def caculate_posterior_prior(x, y, u0, sigma0, b):
-    f = np.array([1, x])
-    f = f[np.newaxis, :]
-    ff = np.dot(f.T, f)
-    _sigma = np.linalg.inv(sigma0)
-    s_n = _sigma + b*ff
-    _s_n = np.linalg.inv(s_n)
-    temp1 = b*np.dot(f.T, y)
-    temp2 = np.dot(_sigma, u0)
-    u = np.dot(_s_n, (temp1+temp2))
-    return u, _s_n
-
 
 
 def mult_gaussian(w, u, sigma):
@@ -100,10 +71,9 @@ def mult_gaussian(w, u, sigma):
 
 
 if __name__ == '__main__':
-    x, y = gen_data()
+    x, y, all_x = gen_data()
     _x = np.linspace(1, -1, 1000)
     _y = -0.3 + 0.5*_x
-
     fig, ((ax1, ax2, ax3), (ax4, ax5, ax6), (ax7, ax8, ax9), (ax10, ax11, ax12)) = plt.subplots(4, 3, figsize=(12, 12))
     fig.subplots_adjust(hspace=0.3, wspace=0.3)
     ax1.plot(_x, _y, 'r')
@@ -126,16 +96,11 @@ if __name__ == '__main__':
     result5 = np.zeros((prior_w0.shape[0], prior_w0.shape[1]))
     u, sigma = caculate_posterior(x[0], y[0], 2.0, 25)
 
-    # for i in xrange(prior_w0.shape[0]):
-    #     for j in xrange(prior_w0.shape[1]):
-    #         data = np.array([prior_w0[i, j], prior_w1[i, j]])
-    #         data = data[:, np.newaxis]
-    #         result5[i, j] = mult_gaussian(data, u, sigma)
-    result5 = mlab.bivariate_normal(prior_w0, prior_w1, sigmax=np.sqrt(sigma[0, 0]), sigmay=np.sqrt(sigma[1, 1]),
-                                    sigmaxy=sigma[0, 1], mux=u[0], muy=u[1])
-    ax5.contourf(prior_w0, prior_w1, result5)
-
-    W = np.random.multivariate_normal(u.reshape((1, 2))[0], sigma, 6)
+    Z = mlab.bivariate_normal(prior_w0, prior_w1, sigmax=np.sqrt(sigma[0, 0]), sigmay=np.sqrt(sigma[1, 1]), mux=u[0],
+                              muy=u[1], sigmaxy=sigma[0, 1])
+    ax5.contourf(prior_w0, prior_w1, Z)
+    u = u.reshape((1, 2))
+    W = np.random.multivariate_normal(u[0], sigma, 6)
     for w in W:
         ax6.plot(_x, w[0]+w[1]*_x)
     ax6.scatter(x[0], y[0])
@@ -143,32 +108,26 @@ if __name__ == '__main__':
     result7 = gaussian2(prior_w0, prior_w1, x[1], y[1], 0.2)
     ax7.contourf(prior_w0, prior_w1, result7)
 
-
-    # test1 = np.array([[1, x[0]], [1, x[1]]])
-    # test2 = np.array([y[0], y[1]])
-    # u, sigma = caculate_posterior_dim2(test1, test2, 2.0, 25)
-    u, sigma = caculate_posterior_prior(x[1], y[1], u, sigma, 25)
-    result8 = mlab.bivariate_normal(prior_w0, prior_w1, sigmax=np.sqrt(sigma[0, 0]), sigmay=np.sqrt(sigma[1, 1]),
-                                    sigmaxy=sigma[0, 1], mux=u[0], muy=u[1])
-    ax8.contourf(prior_w0, prior_w1, result8)
-
+    u, sigma = caculate_posterior_dim(all_x[:2, :], y[:2], 2, 25)
+    Z = mlab.bivariate_normal(prior_w0, prior_w1, sigmax=np.sqrt(sigma[0, 0]), sigmay=np.sqrt(sigma[1, 1]),
+                              mux=u[0], muy=u[1], sigmaxy=sigma[0, 1])
+    ax8.contourf(prior_w0, prior_w1, Z)
     W = np.random.multivariate_normal(u.reshape((1, 2))[0], sigma, 6)
     for w in W:
         ax9.plot(_x, w[0]+w[1]*_x)
-    ax9.scatter(x[0], y[0])
-    ax9.scatter(x[1], y[1])
+    ax9.scatter(x[:2], y[:2])
 
     result10 = gaussian2(prior_w0, prior_w1, x[19], y[19], 0.2)
     ax10.contourf(prior_w0, prior_w1, result10)
 
-    for i in range(2, 20):
-        u, sigma = caculate_posterior_prior(x[i], y[i], u, sigma, 25)
-    result11 = mlab.bivariate_normal(prior_w0, prior_w1, sigmax=np.sqrt(sigma[0, 0]), sigmay=np.sqrt(sigma[1, 1]),
-                                    sigmaxy=sigma[0, 1], mux=u[0], muy=u[1])
-    ax11.contourf(prior_w0, prior_w1, result11)
+    u, sigma = caculate_posterior_dim(all_x[:20, :], y[:20], 2, 25)
+    Z = mlab.bivariate_normal(prior_w0, prior_w1, sigmax=np.sqrt(sigma[0, 0]), sigmay=np.sqrt(sigma[1, 1]),
+                              mux=u[0], muy=u[1], sigmaxy=sigma[0, 1])
+    ax11.contourf(prior_w0, prior_w1, Z)
+
     W = np.random.multivariate_normal(u.reshape((1, 2))[0], sigma, 6)
     for w in W:
         ax12.plot(_x, w[0]+w[1]*_x)
-    for i in range(0, 20):
-        ax12.scatter(x[i], y[i])
+    ax12.scatter(x[:20], y[:20])
     plt.show()
+
