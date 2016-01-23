@@ -42,6 +42,7 @@ class CIFAR10InputTest(tf.test.TestCase):
     records = [self._record(labels[0], 0, 128, 255),
                self._record(labels[1], 255, 0, 1),
                self._record(labels[2], 254, 255, 0)]
+    i = len(records)
     contents = b"".join([record for record, _ in records])
     expected = [expected for _, expected in records]
     filename = os.path.join(self.get_temp_dir(), "cifar")

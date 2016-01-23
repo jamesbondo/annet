@@ -37,16 +37,19 @@ from __future__ import print_function
 
 import gzip
 import os
+# Regular expression operations
 import re
 import sys
 import tarfile
 
 import tensorflow.python.platform
-from six.moves import urllib
+# from six.moves import urllib
+import urllib
 import tensorflow as tf
 
-from tensorflow.models.image.cifar10 import cifar10_input
+# from tensorflow.models.image.cifar10 import cifar10_input
 
+import tensorflow_models_cifar10.cifar10_input as cifar10_input
 FLAGS = tf.app.flags.FLAGS
 
 # Basic model parameters.
@@ -91,6 +94,7 @@ def _activation_summary(x):
   # session. This helps the clarity of presentation on tensorboard.
   tensor_name = re.sub('%s_[0-9]*/' % TOWER_NAME, '', x.op.name)
   tf.histogram_summary(tensor_name + '/activations', x)
+  # tf.nn.zero_fraction  the fraction of zeros in x
   tf.scalar_summary(tensor_name + '/sparsity', tf.nn.zero_fraction(x))
 
 
@@ -129,6 +133,7 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
   var = _variable_on_cpu(name, shape,
                          tf.truncated_normal_initializer(stddev=stddev))
   if wd:
+    # tf.nn.l2_loss(t) output = sum(t ** 2) / 2
     weight_decay = tf.mul(tf.nn.l2_loss(var), wd, name='weight_loss')
     tf.add_to_collection('losses', weight_decay)
   return var
@@ -227,9 +232,30 @@ def inference(images):
       dim *= d
     reshape = tf.reshape(pool2, [FLAGS.batch_size, dim])
 
+    # 384 neurals
     weights = _variable_with_weight_decay('weights', shape=[dim, 384],
                                           stddev=0.04, wd=0.004)
     biases = _variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
+
+    # def relu_layer(x, weights, biases, name=None):
+    #   """Computes Relu(x * weight + biases).
+    #     Args:
+    #         x: a 2D tensor.  Dimensions typically: batch, in_units
+    #         weights: a 2D tensor.  Dimensions typically: in_units, out_units
+    #         biases: a 1D tensor.  Dimensions: out_units
+    #         name: A name for the operation (optional).  If not specified
+    #         "nn_relu_layer" is used.
+    #     Returns:
+    #         A 2-D Tensor computing relu(matmul(x, weights) + biases).
+    #         Dimensions typically: batch, out_units.
+    #   """
+      # with ops.op_scope([x, weights, biases], name, "relu_layer") as name:
+      #   x = ops.convert_to_tensor(x, name="x")
+      #   weights = ops.convert_to_tensor(weights, name="weights")
+      #   biases = ops.convert_to_tensor(biases, name="biases")
+      #   xw_plus_b = nn_ops.bias_add(math_ops.matmul(x, weights), biases)
+      #   return nn_ops.relu(xw_plus_b, name=name)
+
     local3 = tf.nn.relu_layer(reshape, weights, biases, name=scope.name)
     _activation_summary(local3)
 
@@ -274,7 +300,7 @@ def loss(logits, labels):
                                     [FLAGS.batch_size, NUM_CLASSES],
                                     1.0, 0.0)
 
-  # Calculate the average cross entropy loss across the batch.
+  # Calculate the average cross entropy loss across the batch.     softmax and loss
   cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
       logits, dense_labels, name='cross_entropy_per_example')
   cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
@@ -346,6 +372,45 @@ def train(total_loss, global_step):
     grads = opt.compute_gradients(total_loss)
 
   # Apply gradients.
+
+  # def apply_gradients(self, grads_and_vars, global_step=None, name=None):
+  #   """Apply gradients to variables.
+  #   This is the second part of `minimize()`. It returns an `Operation` that
+  #   applies gradients.
+  #   Args:
+  #     grads_and_vars: List of (gradient, variable) pairs as returned by
+  #       `compute_gradients()`.
+  #     global_step: Optional `Variable` to increment by one after the
+  #       variables have been updated.
+  #     name: Optional name for the returned operation.  Default to the
+  #       name passed to the `Optimizer` constructor.
+  #   Returns:
+  #     An `Operation` that applies the specified gradients. If `global_step`
+  #     was not None, that operation also increments `global_step`.
+  #   Raises:
+  #     TypeError: If `grads_and_vars` is malformed.
+  #     ValueError: If none of the variables have gradients.
+  #   """
+
+  # ### Processing gradients before applying them.
+  # Calling `minimize()` takes care of both computing the gradients and
+  # applying them to the variables.  If you want to process the gradients
+  # before applying them you can instead use the optimizer in three steps:
+  # 1.  Compute the gradients with `compute_gradients()`.
+  # 2.  Process the gradients as you wish.
+  # 3.  Apply the processed gradients with `apply_gradients()`.
+  # Example:
+  # ```python
+  # # Create an optimizer.
+  # opt = GradientDescentOptimizer(learning_rate=0.1)
+  # # Compute the gradients for a list of variables.
+  # grads_and_vars = opt.compute_gradients(loss, <list of variables>)
+  # # grads_and_vars is a list of tuples (gradient, variable).  Do whatever you
+  # # need to the 'gradient' part, for example cap them, etc.
+  # capped_grads_and_vars = [(MyCapper(gv[0]), gv[1])) for gv in grads_and_vars]
+  # # Ask the optimizer to apply the capped gradients.
+  # opt.apply_gradients(capped_grads_and_vars)
+
   apply_gradient_op = opt.apply_gradients(grads, global_step=global_step)
 
   # Add histograms for trainable variables.

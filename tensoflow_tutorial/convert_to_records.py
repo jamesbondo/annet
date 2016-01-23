@@ -20,12 +20,13 @@ import os
 import tensorflow.python.platform
 import numpy
 import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
+import tensoflow_tutorial.input_data as input_data
+
 TRAIN_IMAGES = 'train-images-idx3-ubyte.gz'  # MNIST filenames
 TRAIN_LABELS = 'train-labels-idx1-ubyte.gz'
 TEST_IMAGES = 't10k-images-idx3-ubyte.gz'
 TEST_LABELS = 't10k-labels-idx1-ubyte.gz'
-tf.app.flags.DEFINE_string('directory', '/tmp/data',
+tf.app.flags.DEFINE_string('directory', '/tmp/MNIST_data',
                            'Directory to download data files and write the '
                            'converted result')
 tf.app.flags.DEFINE_integer('validation_size', 5000,
@@ -38,6 +39,7 @@ def _bytes_feature(value):
   return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 def convert_to(images, labels, name):
   num_examples = labels.shape[0]
+  # image is a four dim tensor
   if images.shape[0] != num_examples:
     raise ValueError("Images size %d does not match label size %d." %
                      (images.shape[0], num_examples))
