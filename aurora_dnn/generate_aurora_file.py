@@ -54,14 +54,22 @@ def img_data(file):
 
 if __name__=='__main__':
     url = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/'
-    db = Indexer('/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/all.db')
-    db.create_tables()
-
-    count = 0
+    save_path = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2'
+    # db = Indexer('/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/all.db')
+    # db.create_tables()
+    IMAGE_SIZE = 256*256
     for i in ['1', '2', '3', '4']:
         dir = url+i
+        temp = save_path+'/type'+i
+        index = 0
+        count = len(os.listdir(dir))
+        data = np.zeros((count, IMAGE_SIZE+1))
         for f in os.listdir(dir):
-            count += 1
             path = os.path.join(dir, f)
             g, rg = img_data(path)
+            data[index, 0] = int(i)
+            data[index, 1:] = rg
+        print data
+        print data.shape
+        np.save(temp, data)
 
