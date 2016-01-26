@@ -53,23 +53,29 @@ def img_data(file):
 
 
 if __name__=='__main__':
+    # url = '/home/aurora/hdd/workspace/data/aurora2/'
+    # save_path = '/home/aurora/hdd/workspace/data/aurora2'
     url = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/'
     save_path = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2'
     # db = Indexer('/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/all.db')
     # db.create_tables()
     IMAGE_SIZE = 256*256
+    datas = ['21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '01', '02', '03', '12', '14', '16', '17', '18']
     for i in ['1', '2', '3', '4']:
         dir = url+i
-        temp = save_path+'/type'+i
-        index = 0
-        count = len(os.listdir(dir))
-        data = np.zeros((count, IMAGE_SIZE+1))
-        for f in os.listdir(dir):
-            path = os.path.join(dir, f)
-            g, rg = img_data(path)
-            data[index, 0] = int(i)
-            data[index, 1:] = rg
-        print data
-        print data.shape
-        np.save(temp, data)
+        for data in datas:
+            temp = save_path+'/type_'+i+'data_'+data
+            files = [os.path.join(dir, f) for f in os.listdir(dir) if f[7:9] == data]
+            files.sort()
+            result = np.zeros((len(files), IMAGE_SIZE+1))
+            index = 0
+            for f in files:
+                g, rg = img_data(f)
+                result[index, 0] = int(i)
+                result[index, 1:] = rg
+                index += 1
+            print result
+            print result.shape
+            print data
+            np.save(temp, data)
 
