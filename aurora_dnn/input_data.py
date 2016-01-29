@@ -20,8 +20,6 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-
-import tensorflow.python.platform
 # from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
@@ -51,9 +49,9 @@ def get_files(config_file):
 def gen_file_list(url, keys):
     filelists = []
     for key in keys:
-        for i in ['1', '2', '3', '4']:
-            filename = 'type'+i+'_data'+key+'.npy'
-            if i == '4' and key == '02':
+        for i in ['1', '2', '3', '0']:
+            filename = 'type'+i+'_data'+key+'.bin'
+            if i == '3' and key == '02':
                 continue
             filelists.append(os.path.join(url, filename))
 
@@ -122,7 +120,6 @@ def read_aurora(filename_queue):
                            [result.depth, result.height, result.width])
   # Convert from [depth, height, width] to [height, width, depth].
   result.uint8image = tf.transpose(depth_major, [1, 2, 0])
-  print(result.uint8image)
   return result
 
 

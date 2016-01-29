@@ -105,11 +105,61 @@ def gen_file_list(url, keys):
     return filelists
 
 
+def img2list(url, labels, images):
+    imgs_list = []
+    imgs_expected = []
+    for i, image in enumerate(images):
+        path = os.path.join(url, str(labels[i]))
+        path = path + '/' + image
+        print path
+        img = cv2.imread(path)
+        _, g, _ = cv2.split(img)
+        gr = cv2.resize(g, (256, 256))
+        tmp = gr
+        tmp = tmp[:, :, np.newaxis]
+        tmp_record = np.ndarray.tolist(tmp)
+        imgs_expected.append(np.ndarray.tolist(tmp))
+
+        gr = gr.reshape((1, -1))
+        img_list = np.ndarray.tolist(gr)
+        record = [labels[i]] + img_list[0]
+        records = bytes(bytearray(record))
+        imgs_list.append(records)
+    return imgs_list, imgs_expected
+
+
+def gen_bin_files(url, save_path):
+    datas = ['21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '01', '02', '03', '12', '14', '16', '17', '18']
+    for img_label in [0, 1, 2, 3]:
+        dir = url+str(img_label+1)
+        for data in datas:
+            filename = save_path+'/type'+str(img_label)+'_data'+data+'.bin'
+            files = [os.path.join(dir, f) for f in os.listdir(dir) if f[7:9] == data]
+            files.sort()
+            imgs_expected = []
+            imgs_list = []
+            for i, image_path in enumerate(files):
+                # print image_path
+                img = cv2.imread(image_path)
+                _, g, _ = cv2.split(img)
+                gr = cv2.resize(g, (256, 256))
+                tmp = gr
+                tmp = tmp[:, :, np.newaxis]
+                imgs_expected.append(np.ndarray.tolist(tmp))
+                gr = gr.reshape((1, -1))
+                img_list = np.ndarray.tolist(gr)
+                record = [img_label] + img_list[0]
+                records = bytes(bytearray(record))
+                imgs_list.append(records)
+            contents = b"".join(imgs_list)
+            open(filename, "wb").write(contents)
+
+
 if __name__=='__main__':
     # url = '/home/aurora/hdd/workspace/data/aurora2/'
     # save_path = '/home/aurora/hdd/workspace/data/aurora2'
     url = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/'
-    save_path = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2'
+    save_path = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files'
 
     # IMAGE_SIZE = 256*256
     # datas = ['21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '01', '02', '03', '12', '14', '16', '17', '18']
@@ -119,6 +169,7 @@ if __name__=='__main__':
     #         temp = save_path+'/type'+i+'_data'+data
     #         files = [os.path.join(dir, f) for f in os.listdir(dir) if f[7:9] == data]
     #         files.sort()
+    #
     #         result = np.zeros((len(files), IMAGE_SIZE+1))
     #         index = 0
     #         for f in files:
@@ -131,6 +182,7 @@ if __name__=='__main__':
     #         np.save(temp, result)
     # get_count(url, 'type1_')  #18417
     # get_count(url, 'type1.')  #18417
-    keys = get_files('config.txt')
-    get_count2(url, keys[0])
+    # keys = get_files('config.txt')
+    # get_count2(url, keys[0])
     # gen_file_list(url, keys[0])
+    gen_bin_files(url, save_path)

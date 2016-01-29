@@ -53,9 +53,9 @@ import aurora_dnn.input_data as aurora_input
 FLAGS = tf.app.flags.FLAGS
 
 # Basic model parameters.
-tf.app.flags.DEFINE_integer('batch_size', 64,
+tf.app.flags.DEFINE_integer('batch_size', 32,
                             """Number of images to process in a batch.""")
-tf.app.flags.DEFINE_string('data_dir', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/',
+tf.app.flags.DEFINE_string('data_dir', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files/',
                            """Path to the aurora data directory.""")
 
 # Global constants describing the CIFAR-10 data set.
