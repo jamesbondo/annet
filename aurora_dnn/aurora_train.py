@@ -18,7 +18,7 @@ import aurora_dnn.input_data as input_data
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('train_dir', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/event_logs',
+tf.app.flags.DEFINE_string('train_dir', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/event_logs_dnn1_inverse',
                            """Directory where to write event logs """
                            """and checkpoint.""")
 tf.app.flags.DEFINE_integer('max_steps', 100000,

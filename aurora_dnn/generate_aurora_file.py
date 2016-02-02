@@ -67,7 +67,7 @@ def get_count(url, key_word):
 
 
 def get_count2(url, keys):
-    files = [os.path.join(url, f) for f in os.listdir(url) if f[10:12] in keys]
+    files = [os.path.join(url, f) for f in os.listdir(url) if f[10:12] == keys]
     # files = [os.path.join(url, f) for f in os.listdir(url) if f[0:6] == key_word]
     print files
     totalcount = 0
@@ -185,4 +185,8 @@ if __name__=='__main__':
     # keys = get_files('config.txt')
     # get_count2(url, keys[0])
     # gen_file_list(url, keys[0])
-    gen_bin_files(url, save_path)
+    # gen_bin_files(url, save_path)
+    datas = ['21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '01', '02', '03', '12', '14', '16', '17', '18']
+    for data in datas:
+        get_count2('/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/npy_data/', data)
+        print '----------------------------------------------'

@@ -69,7 +69,8 @@ def get_train_filenames(data_dir):
 
 def get_eval_filenames(data_dir):
   keys = get_files('config.txt')
-  filenames = gen_file_list(data_dir, keys[0])
+  filenames = gen_file_list(data_dir, keys[1])
+  print(filenames)
   return filenames
 
 
