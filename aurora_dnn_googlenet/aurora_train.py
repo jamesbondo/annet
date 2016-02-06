@@ -18,7 +18,7 @@ import aurora_dnn.input_data as input_data
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('train_dir', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/event_logs_dnn1_running_2',
+tf.app.flags.DEFINE_string('train_dir', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/event_logs',
                            """Directory where to write event logs """
                            """and checkpoint.""")
 tf.app.flags.DEFINE_integer('max_steps', 100000,
@@ -58,12 +58,13 @@ def train():
     # Start running operations on the Graph.
     # aggregation_method = 2
     ### start session
-    config = tf.ConfigProto()
-    # config.gpu_options.per_process_gpu_memory_fraction=0.98
-    config.gpu_options.allocator_type = "BFC"
-    config.log_device_placement = FLAGS.log_device_placement
-    # sess = tf.Session(config=tf.ConfigProto(log_device_placement=FLAGS.log_device_placement))
-    sess = tf.Session(config=config)
+    # config=tf.ConfigProto()
+    # # config.gpu_options.per_process_gpu_memory_fraction=0.98
+    # config.gpu_options.allocator_type="BFC"
+    # config.log_device_placement=True
+    # sess=tf.Session(config=config)
+    sess = tf.Session(config=tf.ConfigProto(
+        log_device_placement=FLAGS.log_device_placement))
     sess.run(init)
 
     # Start the queue runners.
