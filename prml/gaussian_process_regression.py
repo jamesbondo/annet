@@ -1,10 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from math import exp
 
 
 def generate_data_regression():
-    x = np.random.uniform(0, 1, 33)
-    noise = np.random.normal(0, 0.3, 33)
+    x = np.random.uniform(0, 1, 7)
+    noise = np.random.normal(0, 0.3, 7)
     real_x = np.linspace(0, 1, 1000)
     x.sort()
     y = np.sin(x*2*np.pi)
@@ -12,7 +13,7 @@ def generate_data_regression():
     real_y = np.sin(real_x*2*np.pi)
     plt.plot(real_x, real_y, 'g-')
     plt.scatter(x, y, color='r', marker='*')
-    plt.show()
+    # plt.show()
     return x, y
 
 
@@ -30,35 +31,70 @@ def generate_data_classification():
     plt.show()
 
 
-def kernel(x, y, sigma=1.0):
-    d = (x - y)**2 / sigma
-    return np.exp(-0.5 * d)
+def kernel(x, y, l=2.0):
+    # d = (x - y)**2 / sigma
+    # return np.exp(-0.5 * d)
+    return exp(-1.0/(2*l*l)*np.linalg.norm(x - y)**2)
 
 
-class Gaussian():
-    def __init__(self, kn, beta=0.1):
+def gram_matrix(x, y):
+    return np.array([[kernel(i, j) for j in x] for i in y])
+
+
+class Collections(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+class Gaussian(object):
+    def __init__(self, kn, x, y, points, beta=0.1):
         self.kn = kn
         self.beta = beta
+        self.x = x
+        self.y = y
+        self.points = points
 
-    # compute the gram matrix
-    def gram(self, x1, x2):
-        N = x1.shape[0]
-        M = x2.shape[0]
-        k = np.zeros((N, M), dtype=np.float32)
-        for i in xrange(N):
-            for j in xrange(M):
-                k[i, j] = self.kn(x1[i], x2[j])
-        return k
+    def train(self):
+        noise = np.identity(len(self.x))*self.beta
+        self.gram = self.gram_matrix(self.x, self.x)+noise
 
-    def regression(self, x, y):
-        self._x = x
-        k = self.gram(x, y)
-        #plus the noise
-        k = k + self.beta*np.identity(k.shape[0])
+    def regression(self):
+        kpp = self.gram_matrix(self.points, self.points)
+        kpx = self.gram_matrix(self.x, self.points)
+        kpy = self.gram_matrix(self.points, self.x)
+        inv_gram = np.linalg.inv(self.gram)
+        cov = kpp - np.dot(np.dot(kpx, inv_gram), kpy)
+        print cov.shape
+        mean = np.dot(np.dot(kpx, inv_gram), self.y)
+        print mean.shape
+        return np.random.multivariate_normal(mean, cov, 100), mean
 
+    def gram_matrix(self, x, y):
+        return np.array([[self.kn(i, j) for j in x] for i in y])
+
+def sample_no_prior():
+    z = np.linspace(0, 1, 1000)
+    gram_z = gram_matrix(z, z)
+    mean = np.zeros(1000)
+    datas = np.random.multivariate_normal(mean, gram_z, 100)
+    for data in datas:
+        plt.plot(z, data)
+    plt.show()
 
 
 if __name__ == '__main__':
     x, y = generate_data_regression()
-    # generate_data_classification()
+    z = np.linspace(0, 1, 1000)
+    gp = Gaussian(kernel, x, y, z)
+    gp.train()
+    datas, m = gp.regression()
+    for data in datas:
+        plt.plot(z, data)
+    plt.plot(z, m)
+    plt.show()
+
+
+
+
 
