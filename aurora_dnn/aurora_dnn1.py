@@ -55,7 +55,7 @@ FLAGS = tf.app.flags.FLAGS
 # Basic model parameters.
 tf.app.flags.DEFINE_integer('batch_size', 32,
                             """Number of images to process in a batch.""")
-tf.app.flags.DEFINE_string('data_dir', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files/',
+tf.app.flags.DEFINE_string('data_dir', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files_128/',
                            """Path to the aurora data directory.""")
 
 # Global constants describing the CIFAR-10 data set.
@@ -345,7 +345,7 @@ def train(total_loss, global_step):
   Returns:
     train_op: op for training.
   """
-  # Variables that affect learning rate.
+  # Variables that affect learning rate.   27165   batch_size 32
   num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
   decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 

@@ -45,7 +45,8 @@ def parse_filename(file_name):
 def img_data(file):
     file = cv2.imread(file)
     _, g, _ = cv2.split(file)
-    rg = cv2.resize(g, (256, 256))
+    # rg = cv2.resize(g, (256, 256))
+    rg = cv2.resize(g, (128, 128))
     # cv2.imshow('test', file)
     # cv2.imshow('rgsize', rg)
     # cv2.waitKey(0)
@@ -142,7 +143,8 @@ def gen_bin_files(url, save_path):
                 # print image_path
                 img = cv2.imread(image_path)
                 _, g, _ = cv2.split(img)
-                gr = cv2.resize(g, (256, 256))
+                # gr = cv2.resize(g, (256, 256))
+                gr = cv2.resize(g, (128, 128))
                 tmp = gr
                 tmp = tmp[:, :, np.newaxis]
                 imgs_expected.append(np.ndarray.tolist(tmp))
@@ -159,9 +161,10 @@ if __name__=='__main__':
     # url = '/home/aurora/hdd/workspace/data/aurora2/'
     # save_path = '/home/aurora/hdd/workspace/data/aurora2'
     url = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/'
-    save_path = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files'
+    save_path = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files_128'
 
     # IMAGE_SIZE = 256*256
+    # IMAGE_SIZE = 128*128
     # datas = ['21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '01', '02', '03', '12', '14', '16', '17', '18']
     # for i in ['1', '2', '3', '4']:
     #     dir = url+i
@@ -185,8 +188,8 @@ if __name__=='__main__':
     # keys = get_files('config.txt')
     # get_count2(url, keys[0])
     # gen_file_list(url, keys[0])
-    # gen_bin_files(url, save_path)
-    datas = ['21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '01', '02', '03', '12', '14', '16', '17', '18']
-    for data in datas:
-        get_count2('/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/npy_data/', data)
-        print '----------------------------------------------'
+    gen_bin_files(url, save_path)
+    # datas = ['21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '01', '02', '03', '12', '14', '16', '17', '18']
+    # for data in datas:
+    #     get_count2('/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/npy_data/', data)
+    #     print '----------------------------------------------'

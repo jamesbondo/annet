@@ -53,9 +53,9 @@ import tensorflow_models_cifar10.cifar10_input as cifar10_input
 FLAGS = tf.app.flags.FLAGS
 
 # Basic model parameters.
-tf.app.flags.DEFINE_integer('batch_size', 128,
+tf.app.flags.DEFINE_integer('batch_size2', 256,
                             """Number of images to process in a batch.""")
-tf.app.flags.DEFINE_string('data_dir', '/tmp/cifar10_data',
+tf.app.flags.DEFINE_string('data_dir2', '/tmp/cifar10_data',
                            """Path to the CIFAR-10 data directory.""")
 
 # Global constants describing the CIFAR-10 data set.
@@ -149,11 +149,11 @@ def distorted_inputs():
   Raises:
     ValueError: If no data_dir
   """
-  if not FLAGS.data_dir:
+  if not FLAGS.data_dir2:
     raise ValueError('Please supply a data_dir')
-  data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+  data_dir = os.path.join(FLAGS.data_dir2, 'cifar-10-batches-bin')
   return cifar10_input.distorted_inputs(data_dir=data_dir,
-                                        batch_size=FLAGS.batch_size)
+                                        batch_size=FLAGS.batch_size2)
 
 
 def inputs(eval_data):
@@ -169,11 +169,11 @@ def inputs(eval_data):
   Raises:
     ValueError: If no data_dir
   """
-  if not FLAGS.data_dir:
+  if not FLAGS.data_dir2:
     raise ValueError('Please supply a data_dir')
-  data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+  data_dir = os.path.join(FLAGS.data_dir2, 'cifar-10-batches-bin')
   return cifar10_input.inputs(eval_data=eval_data, data_dir=data_dir,
-                              batch_size=FLAGS.batch_size)
+                              batch_size=FLAGS.batch_size2)
 
 
 def inference(images):
@@ -230,7 +230,7 @@ def inference(images):
     dim = 1
     for d in pool2.get_shape()[1:].as_list():
       dim *= d
-    reshape = tf.reshape(pool2, [FLAGS.batch_size, dim])
+    reshape = tf.reshape(pool2, [FLAGS.batch_size2, dim])
 
     # 384 neurals
     weights = _variable_with_weight_decay('weights', shape=[dim, 384],
@@ -293,11 +293,11 @@ def loss(logits, labels):
   """
   # Reshape the labels into a dense Tensor of
   # shape [batch_size, NUM_CLASSES].
-  sparse_labels = tf.reshape(labels, [FLAGS.batch_size, 1])
-  indices = tf.reshape(tf.range(FLAGS.batch_size), [FLAGS.batch_size, 1])
+  sparse_labels = tf.reshape(labels, [FLAGS.batch_size2, 1])
+  indices = tf.reshape(tf.range(FLAGS.batch_size2), [FLAGS.batch_size2, 1])
   concated = tf.concat(1, [indices, sparse_labels])
   dense_labels = tf.sparse_to_dense(concated,
-                                    [FLAGS.batch_size, NUM_CLASSES],
+                                    [FLAGS.batch_size2, NUM_CLASSES],
                                     1.0, 0.0)
 
   # Calculate the average cross entropy loss across the batch.     softmax and loss
@@ -352,7 +352,7 @@ def train(total_loss, global_step):
     train_op: op for training.
   """
   # Variables that affect learning rate.
-  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size2
   decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 
   # Decay the learning rate exponentially based on the number of steps.
@@ -435,7 +435,7 @@ def train(total_loss, global_step):
 
 def maybe_download_and_extract():
   """Download and extract the tarball from Alex's website."""
-  dest_directory = FLAGS.data_dir
+  dest_directory = FLAGS.data_dir2
   if not os.path.exists(dest_directory):
     os.makedirs(dest_directory)
   filename = DATA_URL.split('/')[-1]
