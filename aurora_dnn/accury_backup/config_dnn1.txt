@@ -4,6 +4,8 @@
 # test days: input the testing days, please use ',' to separate different day   14:1176 0.812, 16:2524  0.702, 17:2758 0.644, 18:1834 0.628
 14
 
+21:1849  22:2524  23:3012  24:1409  25:2383  26:2153  27:1791  28:2416  29:2009  30:1612  31:1891  01:2191  02:555  03:1370  12:2587  14:1176  16:2524  17:2758  18:1834
+
 /home/aurora/software/anaconda2/bin/python2.7 /home/aurora/hdd/workspace/PycharmProjects/annet/aurora_dnn/generate_aurora_file.py
 ['/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/npy_data/type1_data21.npy', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/npy_data/type4_data21.npy', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/npy_data/type2_data21.npy', '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/npy_data/type3_data21.npy']
 /home/aurora/hdd/workspace/PycharmProjects/data/aurora2/npy_data/type1_data21.npy (1071, 65537)

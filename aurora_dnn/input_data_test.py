@@ -14,7 +14,7 @@ import numpy as np
 
 class AuroraInputTest(tf.test.TestCase):
   def _record(self, list):
-    image_size = 256 * 256
+    image_size = 128 * 128
     record = bytes(bytearray(list))
     expected = list
     return record, expected
@@ -53,7 +53,7 @@ class AuroraInputTest(tf.test.TestCase):
                 print(image_path)
                 img = cv2.imread(image_path)
                 _, g, _ = cv2.split(img)
-                gr = cv2.resize(g, (256, 256))
+                gr = cv2.resize(g, (128, 128))
                 tmp = gr
                 tmp = tmp[:, :, np.newaxis]
                 imgs_expected.append(np.ndarray.tolist(tmp))
@@ -107,10 +107,10 @@ class AuroraInputTest(tf.test.TestCase):
     # filename = os.path.join('/tmp', "aurora_test.bin")
     # open(filename, "wb").write(contents)
 
-    labels = 4
+    labels = 3
     expected, nums = self.gen_bin_files('/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/')
     # filename = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files/type1_data21.bin'
-    filename = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files/type4_data03.bin'
+    filename = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files_128/type3_data03.bin'
     with self.test_session() as sess:
       q = tf.FIFOQueue(10000, [tf.string], shapes=())
       q.enqueue([filename]).run()

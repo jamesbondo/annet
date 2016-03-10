@@ -25,12 +25,17 @@ import tensorflow as tf
 
 from tensorflow.python.platform import gfile
 
+import cv2
+import numpy as np
+import random
+
+
 # Process images of this size. the origin aurora image resized to 256*256.
-IMAGE_SIZE = 256
+IMAGE_SIZE = 224
 
 # Global constants describing the aurora data set.
-NUM_CLASSES = 4
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 27165
+NUM_CLASSES = 2
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 13215
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 8292
 # NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 26663
 # NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 8794
@@ -51,9 +56,10 @@ def get_files(config_file):
 def gen_file_list(url, keys):
     filelists = []
     for key in keys:
-        for i in ['1', '2', '3', '0']:
+        # for i in ['1', '2', '3', '0']:
+        for i in ['0', '1']:
             filename = 'type'+i+'_data'+key+'.bin'
-            if i == '3' and key == '02':
+            if i == '1' and key == '02':
                 continue
             filelists.append(os.path.join(url, filename))
 
@@ -99,6 +105,8 @@ def read_aurora(filename_queue):
   result = read_aurora()
 
   label_bytes = 1
+  # result.height = 128
+  # result.width = 128
   result.height = 256
   result.width = 256
   result.depth = 1
@@ -183,30 +191,34 @@ def distorted_inputs(data_dir, batch_size):
 
   height = IMAGE_SIZE
   width = IMAGE_SIZE
+  # angle = int(random.random()*360)
+  # M = cv2.getRotationMatrix2D((IMAGE_SIZE/2, IMAGE_SIZE/2), angle, 1)
+  # dst = cv2.warpAffine(reshaped_image, M, (IMAGE_SIZE, IMAGE_SIZE))
+  # # Convert rotated image back to tensor
+  # rotated_tensor = tf.convert_to_tensor(np.array(dst))
 
   # Image processing for training the network. Note the many random
   # distortions applied to the image.
 
   # Randomly crop a [height, width] section of the image.
-  distorted_image = tf.image.random_crop(reshaped_image, [height, width])
+  distorted_image = tf.random_crop(reshaped_image, [height, width, 1])
+  # distorted_image = tf.image.resize_area()
 
   # Randomly flip the image horizontally.
   distorted_image = tf.image.random_flip_left_right(distorted_image)
 
   # Because these operations are not commutative, consider randomizing
   # randomize the order their operation.
-  distorted_image = tf.image.random_brightness(distorted_image,
-                                               max_delta=63)
-  distorted_image = tf.image.random_contrast(distorted_image,
-                                             lower=0.2, upper=1.8)
+  # distorted_image = tf.image.random_brightness(distorted_image,
+  #                                              max_delta=63)
+  distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
 
   # Subtract off the mean and divide by the variance of the pixels.
   float_image = tf.image.per_image_whitening(distorted_image)
 
   # Ensure that the random shuffling has good mixing properties.
   min_fraction_of_examples_in_queue = 0.4
-  min_queue_examples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN *
-                           min_fraction_of_examples_in_queue)
+  min_queue_examples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN * min_fraction_of_examples_in_queue)
   print ('Filling queue with %d aurora images before starting to train. '
          'This will take a few minutes.' % min_queue_examples)
 

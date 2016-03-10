@@ -131,8 +131,9 @@ def img2list(url, labels, images):
 
 def gen_bin_files(url, save_path):
     datas = ['21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '01', '02', '03', '12', '14', '16', '17', '18']
-    for img_label in [0, 1, 2, 3]:
-        dir = url+str(img_label+1)
+    # for img_label in [0, 1, 2, 3]:
+    for img_label in [0, 1]:
+        dir = url+str(img_label+2)
         for data in datas:
             filename = save_path+'/type'+str(img_label)+'_data'+data+'.bin'
             files = [os.path.join(dir, f) for f in os.listdir(dir) if f[7:9] == data]
@@ -144,7 +145,7 @@ def gen_bin_files(url, save_path):
                 img = cv2.imread(image_path)
                 _, g, _ = cv2.split(img)
                 # gr = cv2.resize(g, (256, 256))
-                gr = cv2.resize(g, (128, 128))
+                gr = cv2.resize(g, (256, 256))
                 tmp = gr
                 tmp = tmp[:, :, np.newaxis]
                 imgs_expected.append(np.ndarray.tolist(tmp))
@@ -161,7 +162,7 @@ if __name__=='__main__':
     # url = '/home/aurora/hdd/workspace/data/aurora2/'
     # save_path = '/home/aurora/hdd/workspace/data/aurora2'
     url = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/'
-    save_path = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files_128'
+    save_path = '/home/aurora/hdd/workspace/PycharmProjects/data/aurora2/bin_files_2_3_class_256*256'
 
     # IMAGE_SIZE = 256*256
     # IMAGE_SIZE = 128*128
